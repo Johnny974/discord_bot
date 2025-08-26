@@ -1,2 +1,7 @@
 [phases.setup]
-    nixPkgs = ['...', 'ffmpeg']
+aptPkgs = [
+  "...",
+  "ffmpeg"]
+
+[start]
+cmd = "ffmpeg 2>&1"
