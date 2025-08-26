@@ -1,6 +1,5 @@
 [phases.setup]
 aptPkgs = [
-  "...",
   "ffmpeg",
   "imagemagick",
   "ghostscript",
@@ -11,4 +10,4 @@ aptPkgs = [
 ]
 
 [start]
-cmd = "ffmpeg 2>&1"
+cmd = "python3 main.py"
