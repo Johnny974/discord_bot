@@ -71,7 +71,6 @@ async def banger(ctx, *, link):
         return
 
     channel = ctx.author.voice.channel
-
     if ctx.voice_client is None:
         vc = await channel.connect()
     else:
@@ -94,6 +93,7 @@ async def banger(ctx, *, link):
         return
 
     vc.stop()
+
     vc.play(discord.FFmpegPCMAudio(url2), after=lambda d: print("Done", d))
 
     await ctx.send(f"▶️ Teraz hrá: **{info['title']}**")
