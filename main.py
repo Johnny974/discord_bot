@@ -65,6 +65,7 @@ async def anketa(ctx, *, question):
 
 @bot.command()
 async def banger(ctx, *, link):
+    print("Banger command bol pustený")
     if ctx.author.voice is None:
         await ctx.send("Musíš byť v hlasovom kanáli, aby som ti mohol pustiť hudbu 🎶")
         return
