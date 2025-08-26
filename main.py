@@ -65,17 +65,23 @@ async def anketa(ctx, *, question):
 
 @bot.command()
 async def banger(ctx, *, link):
-    print("Banger command bol pustený")
+    print("[DEBUG] banger command bol spustený")
     if ctx.author.voice is None:
+        print("[DEBUG] User nie je v kanáli")
         await ctx.send("Musíš byť v hlasovom kanáli, aby som ti mohol pustiť hudbu 🎶")
         return
 
     channel = ctx.author.voice.channel
+    print(f"[DEBUG] User je v kanáli: {channel}")
     if ctx.voice_client is None:
+        print("[DEBUG] Bot nie je pripojený, pripájam sa...")
         vc = await channel.connect()
+        print("[DEBUG] Bot sa pripojil do voice")
     else:
         vc = ctx.voice_client
+        print("[DEBUG] Bot už bol pripojený, presúvam...")
         await vc.move_to(channel)
+        print("[DEBUG] Bot bol presunutý")
 
     ydl_opts = {
         'format': 'bestaudio/best',
@@ -84,19 +90,34 @@ async def banger(ctx, *, link):
     }
 
     try:
+        print("[DEBUG] Sťahujem info z linku...")
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(link, download=False)
             url2 = info['url']
+        print(f"[DEBUG] Načítané info: {info['title']}, stream url získané")
     except Exception as e:
         await ctx.send("❌ Nepodarilo sa načítať pesničku. Skontroluj, či je link správny.")
         print(f"[YT-DLP ERROR] {e}")
         return
 
-    vc.stop()
+    try:
+        print("[DEBUG] Stopujem predchádzajúci audio stream (ak nejaký beží)")
+        vc.stop()
 
-    vc.play(discord.FFmpegPCMAudio(url2), after=lambda d: print("Done", d))
+        print("[DEBUG] Spúšťam FFmpegPCMAudio...")
+        vc.play(
+            discord.FFmpegPCMAudio(url2),
+            after=lambda d: print("[DEBUG] Done callback spustený:", d)
+        )
+        print("[DEBUG] vc.play bolo zavolané")
 
-    await ctx.send(f"▶️ Teraz hrá: **{info['title']}**")
+        await ctx.send(f"▶️ Teraz hrá: **{info['title']}**")
+        print("[DEBUG] Správa o prehrávaní poslaná na text channel")
+    except Exception as e:
+        print(f"[FFMPEG/VC ERROR] {e}")
+        await ctx.send("❌ Nepodarilo sa spustiť prehrávanie.")
+
+    # await ctx.send(f"▶️ Teraz hrá: **{info['title']}**")
 
 
 @bot.command()
