@@ -22,7 +22,7 @@ bot = commands.Bot(command_prefix='/', intents=intents)
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Game(name="!commands | !vtip | !banger <link> | !stop | !anketa <otázka> "))
+    await bot.change_presence(activity=discord.Game(name="/commands | /vtip | /banger <link> | /stop | /anketa <otázka> "))
     print(f'{bot.user.name} has connected to Discord!')
 
 
@@ -107,7 +107,7 @@ async def stop(ctx):
 
 @bot.command()
 async def commands(ctx):
-    embed = discord.Embed(title="Dostupné príkazy:", description="!vtip \n!anketa <otázka> \n!banger <yt-link> \n!stop")
+    embed = discord.Embed(title="Dostupné príkazy:", description="/vtip \n/anketa <otázka> \n/banger <yt-link> \n/stop")
     await ctx.send(embed=embed)
 
 bot.run(token, log_handler=handler, log_level=logging.DEBUG)
