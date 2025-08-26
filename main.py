@@ -6,12 +6,12 @@ import os
 import random
 from joke_api import get_dad_joke
 import yt_dlp
-import re
 
 load_dotenv()
 # token = os.getenv('DISCORD_TOKEN')
 token = os.environ.get("DISCORD_TOKEN")
-
+if not token:
+    raise ValueError("DISCORD_TOKEN nie je načítaný! Skontroluj Environment Variables v Railway.")
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 intents = discord.Intents.default()
 intents.message_content = True
