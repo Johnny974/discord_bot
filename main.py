@@ -1,11 +1,12 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 import logging
 from dotenv import load_dotenv
 import os
 import random
 from joke_api import get_dad_joke
-import yt_dlp
+import datetime
+import asyncio
 
 load_dotenv()
 # token = os.getenv('DISCORD_TOKEN')
@@ -19,10 +20,13 @@ intents.members = True
 
 bot = commands.Bot(command_prefix='/', intents=intents)
 
+joke_channels = {}
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Game(name="/commands | /vtip | /banger <link> | /stop | /anketa <otázka> "))
+    await bot.change_presence(activity=discord.Game(name="/commands | /vtip | /anketa <otázka>-<možnosť1>-<možnosť"
+                                                         "2>-... "))
+    daily_joke.start()
     print(f'{bot.user.name} has connected to Discord!')
 
 
@@ -55,81 +59,56 @@ async def vtip(ctx):
         await ctx.send(f"{ctx.author.mention} - Vtip od starého kozáka: {joke}")
 
 
+@tasks.loop(minutes=1)
+async def daily_joke():
+    now = datetime.datetime.now()
+    if now.hour == 20 and now.minute == 0:
+        for guild_id, channel_id in joke_channels.items():
+            guild = bot.get_guild(guild_id)
+            if not guild:
+                continue
+            channel = guild.get_channel(channel_id)
+            if not channel:
+                continue
+            joke = get_dad_joke()
+            await channel.send(f"Pravidelný vtip od starého kozáka o 20:00: {joke}")
+        await asyncio.sleep(60)
+
+
 @bot.command()
-async def anketa(ctx, *, question):
-    embed = discord.Embed(title="Nová anketa", description=question, color=discord.Color.green())
+@commands.has_permissions(administrator=True)
+async def setvtipkanal(ctx, channel: discord.TextChannel):
+    joke_channels[ctx.guild.id] = channel.id
+    await ctx.send(f"Nastavený kanál pre denné vtipy o 20:00: {channel.mention}")
+
+
+@bot.command()
+async def anketa(ctx, *, args):
+    parts = [x.strip() for x in args.split("-")]
+    if len(parts) < 3:
+        await ctx.send("Použitie: /anketa otázka-možnosť1-možnosť2-...")
+        return
+
+    question = parts[0]
+    options = parts[1:]
+    if len(options) > 5:
+        await ctx.send("Maximálne 5 možností.")
+        return
+
+    emojis = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣"]
+    embed = discord.Embed(title="Nová anketa", description=question, color=discord.Color.blue())
+    for i, option in enumerate(options):
+        embed.add_field(name=emojis[i], value=option, inline=False)
+
     poll_message = await ctx.send(embed=embed)
-    await poll_message.add_reaction("👍🏿")
-    await poll_message.add_reaction("👎🏿")
 
-
-@bot.command()
-async def banger(ctx, *, link):
-    print("[DEBUG] banger command bol spustený")
-    if ctx.author.voice is None:
-        print("[DEBUG] User nie je v kanáli")
-        await ctx.send("Musíš byť v hlasovom kanáli, aby som ti mohol pustiť hudbu 🎶")
-        return
-
-    channel = ctx.author.voice.channel
-    print(f"[DEBUG] User je v kanáli: {channel}")
-    if ctx.voice_client is None:
-        print("[DEBUG] Bot nie je pripojený, pripájam sa...")
-        vc = await channel.connect()
-        print("[DEBUG] Bot sa pripojil do voice")
-    else:
-        vc = ctx.voice_client
-        print("[DEBUG] Bot už bol pripojený, presúvam...")
-        await vc.move_to(channel)
-        print("[DEBUG] Bot bol presunutý")
-
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'noplaylist': True,
-        'quiet': True,
-    }
-
-    try:
-        print("[DEBUG] Sťahujem info z linku...")
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(link, download=False)
-            url2 = info['url']
-        print(f"[DEBUG] Načítané info: {info['title']}, stream url získané")
-    except Exception as e:
-        await ctx.send("❌ Nepodarilo sa načítať pesničku. Skontroluj, či je link správny.")
-        print(f"[YT-DLP ERROR] {e}")
-        return
-
-    try:
-        print("[DEBUG] Stopujem predchádzajúci audio stream (ak nejaký beží)")
-        vc.stop()
-
-        print("[DEBUG] Spúšťam FFmpegPCMAudio...")
-        vc.play(
-            discord.FFmpegPCMAudio(url2),
-            after=lambda d: print("[DEBUG] Done callback spustený:", d)
-        )
-        print("[DEBUG] vc.play bolo zavolané")
-
-        await ctx.send(f"▶️ Teraz hrá: **{info['title']}**")
-        print("[DEBUG] Správa o prehrávaní poslaná na text channel")
-    except Exception as e:
-        print(f"[FFMPEG/VC ERROR] {e}")
-        await ctx.send("❌ Nepodarilo sa spustiť prehrávanie.")
-
-    # await ctx.send(f"▶️ Teraz hrá: **{info['title']}**")
-
-
-@bot.command()
-async def stop(ctx):
-    if ctx.voice_client:
-        await ctx.voice_client.disconnect()
-        await ctx.send("🛑 Hudba zastavená a bot odpojený.")
+    for i in range(len(options)):
+        await poll_message.add_reaction(emojis[i])
 
 
 @bot.command()
 async def commands(ctx):
-    embed = discord.Embed(title="Dostupné príkazy:", description="/vtip \n/anketa <otázka> \n/banger <yt-link> \n/stop")
+    embed = discord.Embed(title="Dostupné príkazy:", description="/vtip \n/anketa <otázka>")
     await ctx.send(embed=embed)
 
 bot.run(token, log_handler=handler, log_level=logging.DEBUG)
