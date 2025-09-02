@@ -7,6 +7,8 @@ import random
 from joke_api import get_dad_joke
 import datetime
 import asyncio
+from db import init_db, get_highscore, update_highscore
+
 
 load_dotenv()
 # token = os.getenv('DISCORD_TOKEN')
@@ -22,11 +24,13 @@ bot = commands.Bot(command_prefix='/', intents=intents)
 
 joke_channels = {}
 
+
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Game(name="/commands | /vtip | /anketa <otázka>-<možnosť1>-<možnosť"
-                                                         "2>-... "))
+    await bot.change_presence(activity=discord.Game(name="/commands | /vtip | /ovocko | /ovocko_highscore | /anketa "
+                                                         "<otázka>-<možnosť1>-<možnosť2>-... "))
     daily_joke.start()
+    init_db()
     print(f'{bot.user.name} has connected to Discord!')
 
 
@@ -107,8 +111,32 @@ async def anketa(ctx, *, args):
 
 
 @bot.command()
+async def ovocko(ctx):
+    emojis = ["🍒", "🍋", "🍇", "🍉", "⭐", "🍌", "🍆", "🍑", "7️⃣", "🍊"]
+    roll = [random.choice(emojis) for _ in range(5)]
+
+    result = " | ".join(roll)
+    await ctx.send(f"🎰 {result}")
+    fruit_score = 6 - len(set(result))
+
+    score = roll.count("⭐") * 10 + fruit_score * 5
+    if score > 0:
+        update_highscore(ctx.guild.id, score)
+        await ctx.send(f"🎉 Získal si {score} bodov!")
+
+
+@bot.command()
+async def ovocko_highscore(ctx):
+    score = get_highscore(ctx.guild.id)
+    embed = discord.Embed(title="Highscore", description=f"Najvyššie dosiahnuté skóre na tomto serveri je: {score}", color=discord.Color.blue())
+    await ctx.send(embed=embed)
+
+
+@bot.command()
 async def commands(ctx):
-    embed = discord.Embed(title="Dostupné príkazy:", description="/vtip \n/anketa <otázka>")
+    embed = discord.Embed(title="Dostupné príkazy:", description="/vtip \n/anketa <otázka>-<možnosť1>-<možnosť2>-... "
+                                                                 "\n/ovocko \n/ovocko_highscore",
+                          color=discord.Color.blue())
     await ctx.send(embed=embed)
 
 bot.run(token, log_handler=handler, log_level=logging.DEBUG)
