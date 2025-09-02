@@ -8,6 +8,7 @@ from joke_api import get_dad_joke
 import datetime
 import asyncio
 from db import init_db, get_highscore, update_highscore
+import logging
 
 
 load_dotenv()
@@ -30,7 +31,6 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name="/commands | /vtip | /ovocko | /ovocko_highscore | /anketa "
                                                          "<otázka>-<možnosť1>-<možnosť2>-... "))
     daily_joke.start()
-    init_db()
     print(f'{bot.user.name} has connected to Discord!')
 
 
@@ -139,4 +139,6 @@ async def commands(ctx):
                           color=discord.Color.blue())
     await ctx.send(embed=embed)
 
-bot.run(token, log_handler=handler, log_level=logging.DEBUG)
+if __name__ == "__main__":
+    init_db()
+    bot.run(token, log_handler=handler, log_level=logging.DEBUG)

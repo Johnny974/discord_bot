@@ -1,10 +1,14 @@
 import os
 import psycopg2
 from psycopg2.extras import DictCursor
+import logging
 
-
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 DATABASE_URL = os.environ.get('DATABASE_URL')
-
+if not DATABASE_URL:
+    logger.error("DATABASE_URL nie je nastavený!")
+    raise ValueError("DATABASE_URL nie je nastavený!")
 
 def get_connection():
     print(DATABASE_URL)
@@ -12,17 +16,19 @@ def get_connection():
 
 
 def init_db():
-    with get_connection() as conn:
-        print(conn)
-        with conn.cursor() as cur:
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS fruit_highscores (
-                    guild_id BIGINT PRIMARY KEY,
-                    score INT NOT NULL DEFAULT 0
-                )
-            """)
-            conn.commit()
-            print("Tabuľka fruit_highscores inicializovaná")
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS fruit_highscores (
+                        guild_id BIGINT PRIMARY KEY,
+                        score INT NOT NULL DEFAULT 0
+                    )
+                """)
+                conn.commit()
+                logger.info("Tabuľka fruit_highscores inicializovaná")
+    except Exception as e:
+        logger.exception("Chyba pri inicializácii DB")
 
 
 def get_highscore(guild_id: int) -> int:
