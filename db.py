@@ -20,6 +20,7 @@ def init_db():
                 )
             """)
             conn.commit()
+            print("Tabuľka fruit_highscores inicializovaná")
 
 
 def get_highscore(guild_id: int) -> int:

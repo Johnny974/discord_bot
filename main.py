@@ -116,7 +116,7 @@ async def ovocko(ctx):
     roll = [random.choice(emojis) for _ in range(5)]
 
     result = " | ".join(roll)
-    await ctx.send(f"🎰 {result}")
+    await ctx.send(f"🎰: {result}")
     fruit_score = 6 - len(set(result))
 
     score = roll.count("⭐") * 10 + fruit_score * 5
