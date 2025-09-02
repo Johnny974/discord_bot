@@ -7,11 +7,13 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 
 
 def get_connection():
+    print(DATABASE_URL)
     return psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor)
 
 
 def init_db():
     with get_connection() as conn:
+        print(conn)
         with conn.cursor() as cur:
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS fruit_highscores (
