@@ -117,7 +117,7 @@ async def ovocko(ctx):
 
     result = " | ".join(roll)
     await ctx.send(f"🎰: {result}")
-    fruit_score = 6 - len(set(result))
+    fruit_score = 6 - len(set(roll))
 
     score = roll.count("⭐") * 10 + fruit_score * 5
     if score > 0:
