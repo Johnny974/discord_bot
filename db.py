@@ -38,6 +38,6 @@ def update_highscore(guild_id: int, new_score: int):
                 VALUES (%s, %s)
                 ON CONFLICT (guild_id)
                 DO UPDATE SET score = EXCLUDED.score
-                WHERE highscores.score < EXCLUDED.score
+                WHERE fruit_highscores.score < EXCLUDED.score
             """, (guild_id, new_score))
             conn.commit()
