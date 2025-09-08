@@ -31,7 +31,7 @@ joke_channels = {}
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Game(name="/commands | /vtip | /ovocko | /ovocko_highscore | /anketa "
+    await bot.change_presence(activity=discord.Game(name="/commands | /nasa | /vtip | /ovocko | /ovocko_highscore | /anketa "
                                                          "<otázka>-<možnosť1>-<možnosť2>-... "))
     daily_joke.start()
     print(f'{bot.user.name} has connected to Discord!')
@@ -169,7 +169,7 @@ async def nasa(ctx):
 
 @bot.command()
 async def commands(ctx):
-    embed = discord.Embed(title="Dostupné príkazy:", description="/vtip \n/anketa <otázka>-<možnosť1>-<možnosť2>-... "
+    embed = discord.Embed(title="Dostupné príkazy:", description="/nasa \n/vtip \n/anketa <otázka>-<možnosť1>-<možnosť2>-... "
                                                                  "\n/ovocko \n/ovocko_highscore",
                           color=discord.Color.blue())
     await ctx.send(embed=embed)
