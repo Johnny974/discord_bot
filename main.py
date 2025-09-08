@@ -139,7 +139,8 @@ async def nasa(ctx):
     title = data.get("title", "NASA Picture of the Day")
     explanation = data.get("explanation", "Bez popisu")
     media_type = data.get("media_type", "")
-    image_url = data.get("hdurl") or data.get("url", "")
+    hdurl = data.get("hdurl")
+    url = data.get("url", "")
 
     if len(explanation) > 2000:
         explanation = explanation[:1997] + "..."
@@ -147,7 +148,7 @@ async def nasa(ctx):
     embed = discord.Embed(title=title, description=explanation, color=0x1e90ff)
 
     if media_type == "image":
-        embed.set_image(url=image_url)
+        embed.set_image(url=hdurl or url)
     else:
         embed.add_field(name="Link", value=f"[Klikni sem]({image_url})")
 
