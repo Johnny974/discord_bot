@@ -145,11 +145,10 @@ async def nasa(ctx):
     if len(explanation) > 2000:
         explanation = explanation[:1997] + "..."
 
-    embed = discord.Embed(title=title, description=explanation, color=0x1e90ff)
-    print("FINAL IMAGE LINK:", hdurl or url)
+    embed = discord.Embed(title=title, description=explanation, color=discord.Color.blue())
+    await ctx.send(f"media_type: {media_type}\nurl: {url}\nhdurl: {hdurl}")
     if media_type == "image":
         embed.set_image(url=hdurl or url)
-        print("FINAL IMAGE LINK:", hdurl or url)
     else:
         embed.add_field(name="Link", value=f"[Klikni sem]({url})")
 
