@@ -1,4 +1,5 @@
 import discord
+import requests
 from discord.ext import commands, tasks
 import logging
 from dotenv import load_dotenv
@@ -10,6 +11,7 @@ import asyncio
 from db import init_db, get_highscore, update_highscore
 from nasa_api import get_apod_data
 import logging
+from io import BytesIO
 
 
 load_dotenv()
@@ -146,7 +148,19 @@ async def nasa(ctx):
 
     embed = discord.Embed(title=title, description=explanation, color=discord.Color.blue())
     if media_type == "image":
-        embed.set_image(url=url)
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            image_data = BytesIO(response.content)
+
+            file = discord.File(image_data, filename="nasa.jpg")
+            embed.set_image(url="attachment://nasa.jpg")
+
+            await ctx.send(embed=embed, file=file)
+            return
+        except Exception as e:
+            await ctx.send(f"Chyba pri sťahovaní obrázku: {e}")
+        # embed.set_image(url=url)
     else:
         embed.add_field(name="Link", value=f"[Klikni sem]({url})")
 
