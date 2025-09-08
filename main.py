@@ -8,6 +8,7 @@ from joke_api import get_dad_joke
 import datetime
 import asyncio
 from db import init_db, get_highscore, update_highscore
+from nasa_api import get_apod_data
 import logging
 
 
@@ -129,6 +130,21 @@ async def ovocko(ctx):
 async def ovocko_highscore(ctx):
     score = get_highscore(ctx.guild.id)
     embed = discord.Embed(title="Highscore", description=f"Najvyššie dosiahnuté skóre na tomto serveri je: {score}", color=discord.Color.blue())
+    await ctx.send(embed=embed)
+
+
+@bot.command()
+async def nasa(ctx):
+    data = get_apod_data()
+    title = data.get("title", "NASA Picture of the Day")
+    explanation = data.get("explanation", "Bez popisu")
+    image_url = data.get("url", "")
+    embed = discord.Embed(title=title, description=explanation, color=0x1e90ff)
+    if image_url.endswith((".jpg", ".png", ".jpeg")):
+        embed.set_image(url=image_url)
+    else:
+        embed.add_field(name="Link", value=image_url)
+
     await ctx.send(embed=embed)
 
 
