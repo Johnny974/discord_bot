@@ -136,14 +136,16 @@ async def ovocko_highscore(ctx):
 @bot.command()
 async def nasa(ctx):
     data = get_apod_data()
+    await ctx.send(f"Debug: {data}")
     title = data.get("title", "NASA Picture of the Day")
     explanation = data.get("explanation", "Bez popisu")
-    image_url = data.get("url", "")
+    image_url = data.get("hdurl") or data.get("url", "")
     embed = discord.Embed(title=title, description=explanation, color=0x1e90ff)
+
     if image_url.endswith((".jpg", ".png", ".jpeg")):
         embed.set_image(url=image_url)
     else:
-        embed.add_field(name="Link", value=image_url)
+        embed.add_field(name="Link", value=f"[Link]({image_url})")
 
     await ctx.send(embed=embed)
 
