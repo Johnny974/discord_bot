@@ -147,7 +147,6 @@ async def nasa(ctx):
     embed = discord.Embed(title=title, description=explanation, color=discord.Color.blue())
     if media_type == "image":
         embed.set_image(url=url)
-        embed.set_image(url="https://cdn.discordapp.com/embed/avatars/0.png")
     else:
         embed.add_field(name="Link", value=f"[Klikni sem]({url})")
 
