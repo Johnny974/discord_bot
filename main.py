@@ -10,6 +10,7 @@ import datetime
 import asyncio
 from db import init_db, get_highscore, update_highscore
 from nasa_api import get_apod_data
+from bible_api import get_random_bible_verse
 import logging
 from io import BytesIO
 
@@ -87,6 +88,12 @@ async def daily_joke():
 async def setvtipkanal(ctx, channel: discord.TextChannel):
     joke_channels[ctx.guild.id] = channel.id
     await ctx.send(f"Nastavený kanál pre denné vtipy o 20:00: {channel.mention}")
+
+
+@bot.command()
+async def randomverse(ctx):
+    verse = get_random_bible_verse()
+    await ctx.send(verse)
 
 
 @bot.command()
